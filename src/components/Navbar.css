@@ -1,0 +1,170 @@
+/* Navbar Styling */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Poppins:wght@400;600&display=swap');
+@keyframes navHover {
+  0% {
+    transform: scale(1);
+    background-color: transparent;
+  }
+  50% {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.1);
+  
+  }
+  100% {
+    transform: scale(1);
+    background-color: transparent;
+  }
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 1px 10px;
+    background-color: #6D4C41;
+    color: white;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  a.logo{
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s;
+    text-align: center;
+  }
+  .logo span{
+    display: inline-block;
+    transition: transform 0.3s ease-in-out,color 0.3s ease-in-out;
+    font-size: 50px;
+    font-family: poppins;
+  }
+  .logo:hover span{
+    transform: scale(1.1);
+    color:#EDC7B7;
+  }
+  
+  /* Navigation Links */
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .navbar:hover{
+    animation: navHover ease-in-out;
+  }
+  .nav-links li {
+    display: inline;
+  }
+  
+  .nav-links a {
+  font-family:Georgia, 'Times New Roman', Times, serif;
+    color: white;
+    text-decoration: none;
+    font-size: 25px;
+    transition: color 0.3s;
+    text-overflow: ellipsis;
+  }
+  
+  .nav-links a:hover {
+    color:#EDC7B7;
+  }
+  
+  .icon-button1 {
+    color: rgb(245, 245, 245);
+    font-size: 25px;
+    text-decoration:rgb(5, 198, 182);
+    transition: transform 0.2s;
+
+  }
+  .icon-button2 {
+    color: rgb(255, 250, 250);
+    font-size: 25px;
+    text-decoration:rgb(5, 198, 182);
+    padding: 0px;
+    align-items: center;
+    margin-left: 20px;
+    transition: transform 0.2s;
+
+  }
+  .icon-button1:hover {
+    transform: scale(1.1);
+    color: #EDC7B7;
+
+  }
+  
+  .icon-button2:hover {
+    transform: scale(1.1);
+    color: #EDC7B7;
+  }
+  @keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(255, 87, 51, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(255, 87, 51, 0.5); }
+    100% { box-shadow: 0 0 5px rgba(255, 87, 51, 0.2); }
+  }
+  
+  .search-bar:focus {
+    animation: glow 1.5s infinite alternate;
+  }
+  .search-container {
+    display: flex;
+    justify-content: center; /* Centers the search bar horizontally */
+    align-items: center; /* Centers vertically */
+    position: absolute;
+    top: 74px; /* Adjust based on your layout */
+   
+    right: 20%;  /* TO ADJUST THE SEARCH CONTAINER CENTRE EITHER TO THE RIGHT OR LEFT */
+    transform: translateX(-50%);
+    width: 60%; /* Adjust width if needed */
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.search-bar {
+    flex: 1; /* Takes up available space */
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-button {
+    width: 50px; /* Adjust width */
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background-color: #6D4C41;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover & Click Effects */
+.search-button:hover {
+    background-color: #e64a19;
+    transform: scale(1.05);
+}
+
+.search-button:active {
+    background-color: #c93817;
+    transform: scale(0.98);
+}
+
+/* Hide when scrolling */
+.hidden {
+    opacity: 0;
+    transform: translateY(-50px);
+    pointer-events: none;
+}
+
+.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
