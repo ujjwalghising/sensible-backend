@@ -4,9 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+      "preview": "vite preview",
     "dev": "vite",
-    "build": "vite build --emptyOutDir",
-    "preview": "vite preview"
+    "prebuild": "chmod +x node_modules/.bin/vite",
+    "build": "vite build --emptyOutDir"
+  
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
