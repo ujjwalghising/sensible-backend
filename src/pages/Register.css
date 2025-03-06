@@ -3,15 +3,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 110vh;
     background-color: #f4f4f9;
     padding: 20px;
   }
   
   .register-container form {
     background-color: white;
-    border-radius: 8px;
+    border-radius: 9px;
     padding: 20px;
+    margin-top: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
@@ -21,7 +22,7 @@
     font-family: poppins;
   font-size: 40px;
   position: absolute; /* Positions the element absolutely */
-  top:100px; /* Moves it close to the top */
+  top:90px; /* Moves it close to the top */
   left: 50%; /* Centers it horizontally */
   transform: translateX(-50%); /* Adjusts centering */
   width: fit-content; /* Keeps the width as per content */
@@ -38,7 +39,7 @@
   .register-container .login-link {
     font-family: poppins;
     font-size: 20px;
-    bottom: -30px; /* Moves it close to the bottom */
+    bottom: -100px; /* Moves it close to the bottom */
     position: absolute; /* Positions the element absolutely */
     left: 50%; /* Centers it horizontally */
     transform: translateX(-50%); /* Adjusts centering */

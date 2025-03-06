@@ -17,13 +17,13 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  margin-bottom: 20px; /* Space below the form */
+  margin-bottom: 40px; /* Space below the form */
 }
 
 .login-container .register-link {
   font-family: poppins;
   font-size: 20px;
-  bottom: 100px; /* Moves it close to the bottom */
+  bottom: 90px; /* Moves it close to the bottom */
   position: absolute; /* Positions the element absolutely */
   left: 50%; /* Centers it horizontally */
   transform: translateX(-50%); /* Adjusts centering */

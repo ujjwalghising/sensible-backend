@@ -4,10 +4,12 @@ import dotenv from "dotenv";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import connectDB from './config/db.js';
+import User from "./models/User.js";
 import cartRoutes from "./routes/cartRoutes.js";
-import connectDB from "./config/db.js";
+import productRoutes from "./routes/productRoutes.js";
 
-// Load environment variables
+// Load environment variablesnode
 dotenv.config();
 connectDB();
 
@@ -19,6 +21,7 @@ const MONGO_URI = process.env.MONGO_URI;
 app.use(express.json());
 app.use(cors());
 app.use("/api/cart", cartRoutes);
+app.use("/api/products", productRoutes)
 
 // MongoDB Connection
 mongoose
@@ -29,14 +32,14 @@ mongoose
 mongoose.connection.on("error", (err) => {
   console.error("❌ MongoDB Error:", err);
 });
+const fetchCartItems = () => {
+  axios.get('/api/cart') // Correct route
+    .then((response) => {
+      setCartItems(response.data);
+    })
+    .catch((error) => console.error('Error fetching cart items:', error));
+};
 
-// ✅ Mongoose Product Model
-const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-});
-
-const Product = mongoose.model("Product", productSchema);
 
 // ✅ Mongoose User Model (with age and gender)
 const userSchema = new mongoose.Schema(
@@ -52,34 +55,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-
-// ✅ API Route to Fetch All Products
-app.get("/api/products", async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching products", error });
-  }
-});
-
-// ✅ API Route to Add a New Product
-app.post("/api/products", async (req, res) => {
-  const { name, price } = req.body;
-
-  if (!name || !price) {
-    return res.status(400).json({ message: "Name and price are required" });
-  }
-
-  try {
-    const newProduct = new Product({ name, price });
-    await newProduct.save();
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
-  } catch (error) {
-    res.status(500).json({ message: "Error adding product", error });
-  }
-});
 
 // ✅ API Route for User Registration
 app.post("/api/register", async (req, res) => {
@@ -181,6 +156,7 @@ app.put("/api/profile", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Error updating profile", error });
   }
 });
+
 
 // ✅ Root Route (Check if server is running)
 app.get("/", (req, res) => {
