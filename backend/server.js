@@ -18,11 +18,8 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 // Middleware
-app.use(cors({ 
-  origin: ['https://localhost:5173','https://sensible-git-main-ujjwals-projects-fc2996e3.vercel.app'], 
-  credentials: true 
-}));
 app.use(express.json());
+app.use(cors());
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes)
 

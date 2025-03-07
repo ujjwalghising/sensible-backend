@@ -1,0 +1,104 @@
+/* Login.css */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Poppins:wght@400;600&display=swap');
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f9;
+  padding: 20px;
+}
+
+.login-container form {
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 40px; /* Space below the form */
+}
+
+.login-container .register-link {
+  font-family: poppins;
+  font-size: 20px;
+  bottom: 90px; /* Moves it close to the bottom */
+  position: absolute; /* Positions the element absolutely */
+  left: 50%; /* Centers it horizontally */
+  transform: translateX(-50%); /* Adjusts centering */
+  width: fit-content; /* Keeps the width as per content */
+  text-align: center;
+}
+
+.login-container .register-link a {
+  color: #4CAF50;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-container .register-link a:hover {
+  text-decoration: underline;
+}
+
+
+.login-container h2 {
+  font-family: poppins;
+  font-size: 40px;
+  position: absolute; /* Positions the element absolutely */
+  top:150px; /* Moves it close to the top */
+  left: 50%; /* Centers it horizontally */
+  transform: translateX(-50%); /* Adjusts centering */
+  width: fit-content; /* Keeps the width as per content */
+  text-align: center;
+  text-decoration: underline;
+}
+
+.login-container label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.login-container input[type="email"],
+.login-container input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+ 
+ align-items: center;
+  font-size: 16px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-container button:disabled {
+  background-color: #ddd;
+}
+
+.login-container .error {
+  color: red;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.login-container .register-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.login-container .register-link a {
+  color: #4CAF50;
+  text-decoration: none;
+}

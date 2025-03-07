@@ -1,0 +1,97 @@
+/* Register.css */
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 110vh;
+    background-color: #f4f4f9;
+    padding: 20px;
+  }
+  
+  .register-container form {
+    background-color: white;
+    border-radius: 9px;
+    padding: 20px;
+    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .register-container h2 {
+    font-family: poppins;
+  font-size: 40px;
+  position: absolute; /* Positions the element absolutely */
+  top:90px; /* Moves it close to the top */
+  left: 50%; /* Centers it horizontally */
+  transform: translateX(-50%); /* Adjusts centering */
+  width: fit-content; /* Keeps the width as per content */
+  text-align: center;
+  text-decoration: underline;
+  }
+  
+  .register-container label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .register-container .login-link {
+    font-family: poppins;
+    font-size: 20px;
+    bottom: -100px; /* Moves it close to the bottom */
+    position: absolute; /* Positions the element absolutely */
+    left: 50%; /* Centers it horizontally */
+    transform: translateX(-50%); /* Adjusts centering */
+    width: fit-content; /* Keeps the width as per content */
+    text-align: center;
+  }
+  
+  .register-container .login-link a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .register-container .login-link a:hover {
+    text-decoration: underline;
+    color: #1bac49;
+  }
+
+
+  .register-container input[type="text"],
+  .register-container input[type="email"],
+  .register-container input[type="password"],
+  .register-container input[type="number"],
+  .register-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .register-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .register-container button:disabled {
+    background-color: #ddd;
+  }
+  
+  .register-container .error {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .register-container button:hover {
+    background-color: #1bac49;
+  }

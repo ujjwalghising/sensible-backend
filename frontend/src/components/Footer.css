@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Poppins:wght@400;600&display=swap');
+.footer {
+  background-color: #222;
+  color: #fff;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.footer-container {
+  display: flex;
+  padding: 30px 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-links a {
+  color: #782525;
+  font-family: 'Lora', serif;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 20px;
+  margin-bottom: 40px;
+  transition: color 0.3s ease;
+}
+
+.footer-copy {
+  font-size: 12px;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* Social Media Icons */
+.instagram {
+  font-size: 32px;
+  color: #e4405f;
+  margin: 0 15px;
+}
+
+.twitter {
+  color: #1da1f2;
+  font-size: 32px;
+  margin: 0 15px;
+}
+
+.facebook {
+  color: #1877f2;
+  font-size: 32px;
+  margin: 0 15px;
+}
+
+/* Hover Effects */
+.facebook:hover, .instagram:hover, .twitter:hover {
+  transform: scale(1.2) rotate(5deg); /* Enlarges + Slight Rotation */
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+  filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.6)); /* Glow effect */
+}
+
+/* Bounce Effect */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); } /* Moves the icon up slightly */
+}
+
+/* Apply bounce animation on hover */
+
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+
+}
+.footer-text{
+  font-size: 14px;opacity: 0.7;;
+  font-family: 'Lora', serif;
+}
+
