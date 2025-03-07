@@ -18,8 +18,11 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 // Middleware
+app.use(cors({ 
+  origin: ['https://sensible-git-main-ujjwals-projects-fc2996e3.vercel.app'], 
+  credentials: true 
+}));
 app.use(express.json());
-app.use(cors());
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes)
 
@@ -55,7 +58,9 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 // ✅ API Route for User Registration
 app.post("/api/register", async (req, res) => {
   const { name, email, password, age, gender, profilePicture, bio } = req.body;
