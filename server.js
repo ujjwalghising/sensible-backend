@@ -14,15 +14,11 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 // ✅ CORS Configuration
-app.use(cors({
-  origin: ["http://localhost:5173", "https://sensible-tan.vercel.app","https://sensible-ujjwals-projects-fc2996e3.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-}));
+app.use(cors({origin: 'https://sensible-tan.vercel.app',credentials:true,}));
 
 app.use(express.json());
 
