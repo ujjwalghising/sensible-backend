@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
 // ✅ CORS Configuration
-app.use(cors({origin: 'https://sensible-tan.vercel.app',credentials:true,}));
+app.use(cors());
 
 app.use(express.json());
 
