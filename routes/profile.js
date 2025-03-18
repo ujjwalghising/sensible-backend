@@ -1,10 +1,11 @@
-const express = require("express");
+import express from "express";
+import upload from "../middleware/upload.js";
+import { updateProfilePicture } from "../controllers/profileController.js";
+import { verifyToken } from "../middleware/authMiddleware.js";    // Correct import
+
 const router = express.Router();
-const upload = require("../middleware/upload");
-const { updateProfilePicture } = require("../controllers/profileController");
-const authMiddleware = require("../middleware/authMiddleware");
 
 // Profile picture upload route
-router.post("/upload", authMiddleware, upload.single("profilePicture"), updateProfilePicture);
+router.post("/upload", verifyToken, upload.single("profilePicture"), updateProfilePicture);   // Use `verifyToken`
 
-module.exports = router;
+export default router;
