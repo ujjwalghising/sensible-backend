@@ -46,6 +46,11 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
+app.use((err, req, res, next) => {
+  console.error("Internal Server Error:", err.message);
+  res.status(500).json({ message: "Server error", error: err.message });
+});
+
 
 // ✅ Start Server
 app.listen(PORT, () => {

@@ -6,7 +6,7 @@ import { sendVerificationEmail } from "../utils/emailService.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/api/register", async (req, res) => {
   const { name, email, password, gender } = req.body;
 
   try {
