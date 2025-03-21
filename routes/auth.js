@@ -6,7 +6,7 @@ import sendEmail from "../utils/sendEmail.js";  // ✅ Added missing import
 
 const router = express.Router();
 
-// ✅ Register Route (remove /api/ from here)
+// ✅ Register Route
 router.post("/register", async (req, res) => {
   const { name, email, password, gender } = req.body;
 
@@ -34,43 +34,33 @@ router.post("/register", async (req, res) => {
 
     await newUser.save();
 
-    // Send Verification Email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
 
-    const emailContent = `
-      <h1>Verify Your Email</h1>
-      <p>Click the link below to verify your email:</p>
-      <a href="${verificationLink}" target="_blank">Verify Email</a>
-    `;
+    // ✅ Try sending email but continue even if it fails
+    try {
+      const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+      const emailContent = `
+        <h1>Verify Your Email</h1>
+        <p>Click the link below to verify your email:</p>
+        <a href="${verificationLink}" target="_blank">Verify Email</a>
+      `;
 
-    await sendEmail(email, "Email Verification", emailContent);
+      await sendEmail(email, "Email Verification", emailContent);
 
-    res.status(201).json({ message: "Please check your email to verify your account." });
+      // ✅ Respond only if email is sent successfully
+      res.status(201).json({ message: "Please check your email to verify your account." });
 
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
+    } catch (emailError) {
+      console.error("❌ Email sending failed:", emailError.message);
 
-// ✅ Email Verification Route
-router.get("/verify", async (req, res) => {
-  const { token } = req.query;
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ email: decoded.email });
-
-    if (!user || user.isVerified) {
-      return res.status(400).json({ error: "Invalid or expired token" });
+      // ✅ Send partial success response even if email fails
+      res.status(201).json({
+        message: "User registered, but email could not be sent. Please verify later."
+      });
     }
 
-    user.isVerified = true;
-    await user.save();
-
-    res.json({ message: "Email verified successfully" });
-
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    console.error("❌ Server Error:", error);
+    res.status(500).json({ error: "Server error. Please try again later." });
   }
 });
 
@@ -98,6 +88,7 @@ router.post("/login", async (req, res) => {
     res.json({ token });
 
   } catch (error) {
+    console.error("🔥 Login Error:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
