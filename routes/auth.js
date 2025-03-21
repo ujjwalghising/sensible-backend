@@ -7,7 +7,7 @@ import sendEmail from "../utils/sendEmail.js";  // ✅ Added missing import
 const router = express.Router();
 
 // ✅ Register Route
-router.post("/api/register", async (req, res) => {
+router.post("/register", async (req, res) => {
   const { name, email, password, gender } = req.body;
 
   try {
@@ -53,7 +53,7 @@ router.post("/api/register", async (req, res) => {
 });
 
 // ✅ Email Verification Route
-router.get("/api/verify", async (req, res) => {
+router.get("/verify", async (req, res) => {
   const { token } = req.query;
 
   try {
@@ -75,7 +75,7 @@ router.get("/api/verify", async (req, res) => {
 });
 
 // ✅ Login Route (Moved outside the verify route)
-router.post("/api/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -101,7 +101,7 @@ router.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-router.get("/api/profile", async (req, res) => {
+router.get("/profile", async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
