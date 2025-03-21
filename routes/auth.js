@@ -7,7 +7,7 @@ import sendEmail from "../utils/sendEmail.js";  // ✅ Added missing import
 const router = express.Router();
 
 // ✅ Register Route
-router.post("/register", async (req, res) => {
+router.post("/api/register", async (req, res) => {
   const { name, email, password, gender } = req.body;
 
   try {
@@ -34,38 +34,48 @@ router.post("/register", async (req, res) => {
 
     await newUser.save();
 
+    // Send Verification Email
+    const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
 
-    // ✅ Try sending email but continue even if it fails
-    try {
-      const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
-      const emailContent = `
-        <h1>Verify Your Email</h1>
-        <p>Click the link below to verify your email:</p>
-        <a href="${verificationLink}" target="_blank">Verify Email</a>
-      `;
+    const emailContent = `
+      <h1>Verify Your Email</h1>
+      <p>Click the link below to verify your email:</p>
+      <a href="${verificationLink}" target="_blank">Verify Email</a>
+    `;
 
-      await sendEmail(email, "Email Verification", emailContent);
+    await sendEmail(email, "Email Verification", emailContent);
 
-      // ✅ Respond only if email is sent successfully
-      res.status(201).json({ message: "Please check your email to verify your account." });
-
-    } catch (emailError) {
-      console.error("❌ Email sending failed:", emailError.message);
-
-      // ✅ Send partial success response even if email fails
-      res.status(201).json({
-        message: "User registered, but email could not be sent. Please verify later."
-      });
-    }
+    res.status(201).json({ message: "Please check your email to verify your account." });
 
   } catch (error) {
-    console.error("❌ Server Error:", error);
-    res.status(500).json({ error: "Server error. Please try again later." });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// ✅ Login Route
-router.post("/login", async (req, res) => {
+// ✅ Email Verification Route
+router.get("/api/verify", async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user || user.isVerified) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    res.json({ message: "Email verified successfully" });
+
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ Login Route (Moved outside the verify route)
+router.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -88,27 +98,6 @@ router.post("/login", async (req, res) => {
     res.json({ token });
 
   } catch (error) {
-    console.error("🔥 Login Error:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-// ✅ Profile Route
-router.get("/profile", authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId).select("name email gender");
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({
-      name: user.name,
-      email: user.email,
-      gender: user.gender
-    });
-
-  } catch (error) {
-    console.error("Error fetching profile:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
