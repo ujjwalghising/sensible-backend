@@ -11,7 +11,7 @@ const sendEmail = async (email, subject, htmlContent) => {
     });
 
     const mailOptions = {
-      from: `"Inna Clothing" <${process.env.GMAIL_USER}>`,  // ✅ Use the same Gmail address here
+      from: `"Sensible clothing" <${process.env.GMAIL_USER}>`,  // ✅ Use the same Gmail address here
       to: email,
       subject,
       html: htmlContent
