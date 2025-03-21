@@ -101,7 +101,7 @@ router.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-router.get("/", async (req, res) => {
+router.get("/api/profile", async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
