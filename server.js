@@ -6,10 +6,7 @@ import cors from "cors";
 import connectDB from './config/db.js';
 import cartRoutes from "./routes/cartRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import registerRoute from "./routes/register.js";
-import loginRoute from "./routes/login.js";
-import profileRoute from "./routes/profile.js";
-import verifyEmailRoute from "./routes/verifyEmail.js";
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 connectDB();
@@ -26,10 +23,8 @@ app.use(express.json());
 // ✅ API Routes
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/register", registerRoute);
-app.use("/api/login", loginRoute);
-app.use("/api/profile", profileRoute);
-app.use("/api/verify-email", verifyEmailRoute);
+app.use("/api", authRoutes);   // Ensure the base path is set
+
 
 // ✅ MongoDB Connection
 mongoose.connect(MONGO_URI)
