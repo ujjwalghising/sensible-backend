@@ -38,7 +38,7 @@ router.post("/api/register", async (req, res) => {
     const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
 
     const emailContent = `
-      <h1>Verify Your Email</h1>
+      <h1>Verify Your Email please</h1>
       <p>Click the link below to verify your email:</p>
       <a href="${verificationLink}" target="_blank">Verify Email</a>
     `;
@@ -98,6 +98,35 @@ router.post("/api/login", async (req, res) => {
     res.json({ token });
 
   } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+router.get("/", async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("name email gender");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // ✅ Ensure all fields are returned
+    res.json({
+      name: user.name || "N/A",
+      email: user.email || "N/A",
+      gender: user.gender || "N/A"
+    });
+
+  } catch (error) {
+    console.error("Error in profile route:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
