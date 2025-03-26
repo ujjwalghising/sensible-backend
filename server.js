@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";   // ✅ Fix for __dirname with ES modules
 import connectDB from './config/db.js';
 import cartRoutes from "./routes/cartRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 connectDB();

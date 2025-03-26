@@ -1,3 +1,4 @@
+//authRoutes.js is a new file that contains the routes for user registration, email verification, and login. The register route creates a new user, hashes the password, and sends a verification email. The verify-email route verifies the email using a token sent in the verification email. The login route checks the user's credentials and returns a JWT token. The profile route returns the user's profile information using the JWT token for authentication.
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -35,7 +36,7 @@ router.post("/register", async (req, res) => {
     await newUser.save();
 
     // Send Verification Email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-mail?token=${verificationToken}`;
 
     const emailContent = `
       <h1>Verify Your Email please</h1>
@@ -53,26 +54,34 @@ router.post("/register", async (req, res) => {
 });
 
 // ✅ Email Verification Route
-router.get("/verify", async (req, res) => {
+router.get("/verify-email", async (req, res) => {
   const { token } = req.query;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ email: decoded.email });
+    const user = await User.findById(decoded.id);
 
-    if (!user || user.isVerified) {
-      return res.status(400).json({ error: "Invalid or expired token" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ error: "Email already verified." });
     }
 
     user.isVerified = true;
     await user.save();
 
-    res.json({ message: "Email verified successfully" });
+    res.status(200).json({ message: "Email verified successfully!" });
 
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Verification Error:", error);
+    res.status(500).json({ error: "Invalid or expired token." });
   }
 });
+
+
+
 
 // ✅ Login Route (Moved outside the verify route)
 router.post("/login", async (req, res) => {

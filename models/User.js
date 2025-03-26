@@ -26,12 +26,12 @@ const userSchema = new mongoose.Schema({
     required: true, 
     enum: ["male", "female", "other"]
   },
-  isVerified: { 
-    type: Boolean, 
-    default: false 
-  },
-  verificationToken: { 
+  emailVerificationToken: { 
     type: String 
+  },
+  isVerified: {    // ✅ Use a single `isVerified` field for consistency
+    type: Boolean,
+    default: false
   },
   createdAt: { 
     type: Date, 
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// ✅ Automatically update `updatedAt` on save
+// ✅ Automatically update `updatedAt` before every `save` operation
 userSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
