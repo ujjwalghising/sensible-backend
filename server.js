@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";   // ✅ Fix for __dirname with ES modules
 import connectDB from './config/db.js';
 import cartRoutes from "./routes/cartRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -21,13 +20,13 @@ app.use(express.json());
 // ✅ API Routes
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api", authRoutes);   // Ensure the base path is set
 
-// ✅ Error Handling Middleware (place it BEFORE serving frontend)
-app.use((err, req, res, next) => {
-  console.error("🔥 Internal Server Error:", err.message);
-  res.status(500).json({ message: "Server error", error: err.message });
-});
+console.log("✅ Loaded ENV Variables:");
+console.log("PORT:", process.env.PORT);
+console.log("MONGO_URI:", process.env.MONGO_URI ? "✅ Set" : "❌ Not Set");
+console.log("JWT_SECRET:", process.env.JWT_SECRET ? "✅ Set" : "❌ Not Set");
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("GMAIL_USER:", process.env.GMAIL_USER);
 
 // ✅ Serve Frontend (if you want to deploy it together)
 const __filename = fileURLToPath(import.meta.url);
