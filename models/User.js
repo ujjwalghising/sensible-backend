@@ -1,5 +1,5 @@
+//User.js
 import mongoose from "mongoose";
-
 const userSchema = new mongoose.Schema({
   name: { 
     type: String, 
@@ -26,13 +26,6 @@ const userSchema = new mongoose.Schema({
     required: true, 
     enum: ["male", "female", "other"]
   },
-  emailVerificationToken: { 
-    type: String 
-  },
-  isVerified: {    // ✅ Use a single `isVerified` field for consistency
-    type: Boolean,
-    default: false
-  },
   createdAt: { 
     type: Date, 
     default: Date.now 
@@ -40,7 +33,12 @@ const userSchema = new mongoose.Schema({
   updatedAt: { 
     type: Date, 
     default: Date.now 
-  }
+  },
+  isVerified: { type: Boolean, default: false },
+
+  verificationToken:{
+    type: String,
+  },
 });
 
 // ✅ Automatically update `updatedAt` before every `save` operation

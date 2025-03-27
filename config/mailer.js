@@ -1,21 +1,26 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASS,
   },
 });
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+  const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+
   await transporter.sendMail({
-    from: `"sensible" <${process.env.EMAIL_USER}>`,
+    from: `"No Reply" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: "Verify Your Email",
-    html: `<p>Click <a href="${verificationLink}">here</a> to verify your email.</p>`,
+    html: `<p>Click the link below to verify your email:</p>
+           <a href="${verifyLink}">${verifyLink}</a>`,
   });
 };
 
-export default sendVerificationEmail;
+export default { sendVerificationEmail };
