@@ -88,21 +88,32 @@ export const login = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
+
+    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(400).json({ message: 'Invalid token' });
-
-    if(user.isVerified) {
-      return res.status(200).json({ message: 'Email already verified' });
+    if (!user) {
+      // Redirect with status=failed if token is invalid
+      return res.redirect(`${process.env.FRONTEND_URL}/verify?status=failed`);
     }
 
+    if (user.isVerified) {
+      // Redirect with status=already-verified
+      return res.redirect(`${process.env.FRONTEND_URL}/verify?status=already-verified`);
+    }
+
+    // Mark the user as verified
     user.isVerified = true;
     await user.save();
 
-    res.status(200).json({ message: 'Email verified' });
+    // Redirect with status=success
+    res.redirect(`${process.env.FRONTEND_URL}/verify?status=success`);
+
   } catch (error) {
-    res.status(400).json({ message: 'Invalid or expired token' });
+    console.error('Verification error:', error);
+    // Redirect with status=error on exception
+    res.redirect(`${process.env.FRONTEND_URL}/verify?status=error`);
   }
 };
 export const forgotPassword = async (req, res) => {
