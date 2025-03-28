@@ -94,26 +94,26 @@ export const verifyEmail = async (req, res) => {
 
     const user = await User.findById(decoded.id);
     if (!user) {
-      // Redirect with status=failed if token is invalid
-      return res.redirect(`${process.env.FRONTEND_URL}/verify?status=failed`);
+      // Redirect with failed status and token
+      return res.redirect(`${process.env.FRONTEND_URL}/verify?token=${token}&status=failed`);
     }
 
     if (user.isVerified) {
-      // Redirect with status=already-verified
-      return res.redirect(`${process.env.FRONTEND_URL}/verify?status=already-verified`);
+      // Redirect with already-verified status and token
+      return res.redirect(`${process.env.FRONTEND_URL}/verify?token=${token}&status=already-verified`);
     }
 
     // Mark the user as verified
     user.isVerified = true;
     await user.save();
 
-    // Redirect with status=success
-    res.redirect(`${process.env.FRONTEND_URL}/verify?status=success`);
+    // Redirect with success status and token
+    res.redirect(`${process.env.FRONTEND_URL}/verify?token=${token}&status=success`);
 
   } catch (error) {
     console.error('Verification error:', error);
-    // Redirect with status=error on exception
-    res.redirect(`${process.env.FRONTEND_URL}/verify?status=error`);
+    // Redirect with error status and token
+    res.redirect(`${process.env.FRONTEND_URL}/verify?token=${token}&status=error`);
   }
 };
 export const forgotPassword = async (req, res) => {
