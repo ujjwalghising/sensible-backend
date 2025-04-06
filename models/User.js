@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   resetToken: { type: String },
   resetTokenExpire: { type: Date },
-}, { timestamps: true });
+  role: { type: String, enum: ['user', 'admin'], default: 'user' } // ✅ This is important
+},{ timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 export default User;

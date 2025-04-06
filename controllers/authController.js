@@ -4,21 +4,27 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../models/User.js';
 
+
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create the new user
+
+    // Create new user with default role 'user'
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       isVerified: false,
+      role: 'user', // ✅ default role
     });
 
     // Generate verification token
@@ -33,8 +39,8 @@ export const register = async (req, res) => {
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
 
     const mailOptions = {
@@ -44,7 +50,7 @@ export const register = async (req, res) => {
       html: `
         <p>Thank you for registering. Please verify your email by clicking the link below:</p>
         <a href="${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}">Verify Email</a>
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
@@ -56,6 +62,7 @@ export const register = async (req, res) => {
   }
 };
 
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -65,7 +72,6 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // 🔥 Check if the user is verified
     if (!user.isVerified) {
       return res.status(403).json({ message: 'Please verify your email before logging in.' });
     }
@@ -75,15 +81,29 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    res.status(200).json({ token });
+    // ✅ Send token as HttpOnly cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
+      maxAge: 60 * 60 * 1000
+    })
+    
+      .status(200)
+      .json({ message: 'Login successful', user: { id: user._id, email: user.email, role: user.role } });
 
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 export const verifyEmail = async (req, res) => {
   try {
@@ -194,3 +214,21 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+export const logout = (req, res) => {
+  res.clearCookie('token').json({ message: 'Logged out successfully' });
+};
+export const getMe = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  res.status(200).json({
+    _id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    role: req.user.role,
+  });
+};
+
+// backend/controllers/authController.js
+

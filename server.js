@@ -8,15 +8,30 @@ import cartRoutes from "./routes/cartRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'; // Import admin routes
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = ['http://localhost:5173', 'https://your-deployed-admin.vercel.app'];
 
-// ✅ CORS Configuration
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+app.set('trust proxy', 1); // 💡 Required for Railway to handle cookies properly
+
+app.use(cookieParser()); // ✅ Middleware for parsing cookies
 app.use(express.json());
 
 // ✅ API Routes
@@ -24,6 +39,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes); // Use admin routes
 
 console.log("✅ Loaded ENV Variables:");
 console.log("PORT:", process.env.PORT);
@@ -35,10 +51,7 @@ console.log("EMAIL_USER:", process.env.EMAIL_USER);
 // ✅ Serve Frontend (if you want to deploy it together)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Catch-all for React frontend
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+
 
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
