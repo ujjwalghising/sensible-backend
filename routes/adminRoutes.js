@@ -9,10 +9,12 @@ import {
   getAllOrders,
   getAnalytics,
   getSettings,
-  updateSettings
+  updateSettings,
+  inviteAdmin,
+  registerAdmin,
+  loginAdmin // 👈 add this
 } from '../controllers/adminController.js';
-import { isAdmin } from '../middleware/isAdmin.js';
-import { inviteAdmin, registerAdmin } from '../controllers/adminController.js';
+
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 
@@ -51,9 +53,12 @@ router.route('/profile').put(protect, adminOnly, updateProfile);
 router.get('/ping', (req, res) => {
   res.json({ message: 'Admin route is working' });
 });
+router.post('/login', loginAdmin);
+
 
 // Only an authenticated admin can invite another admin
-router.post('/invite', protect, isAdmin, inviteAdmin);
+router.post('/invite', protect, adminOnly, inviteAdmin);
+
 
 // Route used by invited user to register using the token
 router.post('/register-invite', registerAdmin);

@@ -130,6 +130,7 @@ export const createUser = async (req, res) => {
     }
   };
 
+  
 
 export const inviteAdmin = async (req, res) => {
   const { email } = req.body;
@@ -170,7 +171,11 @@ export const inviteAdmin = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+
 export const registerAdmin = async (req, res) => {
+  console.log('JWT_SECRET:', process.env.JWT_SECRET);
     const { name, password, token } = req.body;
   
     try {
@@ -181,7 +186,8 @@ export const registerAdmin = async (req, res) => {
       if (existingUser) return res.status(400).json({ message: 'User already exists' });
   
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
+ 
       await User.create({
         name,
         email,
@@ -196,6 +202,45 @@ export const registerAdmin = async (req, res) => {
       res.status(400).json({ message: 'Invalid or expired token', error: error.message });
     }
   };
-  
 
+  export const loginAdmin = async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      const user = await User.findOne({ email });
+  
+      if (!user || user.role !== 'admin') {
+        return res.status(401).json({ message: 'Invalid credentials or not an admin' });
+      }
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+  
+      const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+        expiresIn: '7d',
+      });
+  
+      res
+        .cookie('adminToken', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        .json({
+          message: 'Logged in successfully',
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        });
+  
+    } catch (error) {
+      res.status(500).json({ message: 'Login error', error: error.message });
+    }
+  };
   

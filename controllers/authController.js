@@ -88,7 +88,7 @@ export const login = async (req, res) => {
     );
 
     // ✅ Send token as HttpOnly cookie
-    res.cookie('token', token, {
+    res.cookie('adminToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
@@ -96,7 +96,7 @@ export const login = async (req, res) => {
     })
     
       .status(200)
-      .json({ message: 'Login successful', user: { id: user._id, email: user.email, role: user.role } });
+      .json({ message: 'Login successful',token ,user: { id: user._id, email: user.email, role: user.role } });
 
   } catch (error) {
     console.error('Login error:', error);
