@@ -88,13 +88,13 @@ export const login = async (req, res) => {
     );
 
     // ✅ Send token as HttpOnly cookie
-    res.cookie('adminToken', token, {
+    res.cookie("adminToken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax',
-      maxAge: 60 * 60 * 1000
+      secure: true,         // ✅ because Railway uses HTTPS
+      sameSite: "None",     // ✅ critical for cross-origin
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
-    
+
       .status(200)
       .json({ message: 'Login successful',token ,user: { id: user._id, email: user.email, role: user.role } });
 

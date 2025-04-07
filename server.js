@@ -16,18 +16,13 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = ['http://localhost:5173', 'https://your-deployed-admin.vercel.app'];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // must exactly match frontend URL
+    credentials: true,               // must be true to send cookies
+  })
+);
 
 app.set('trust proxy', 1); // 💡 Required for Railway to handle cookies properly
 
