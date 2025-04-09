@@ -243,4 +243,14 @@ export const registerAdmin = async (req, res) => {
       res.status(500).json({ message: 'Login error', error: error.message });
     }
   };
+  export const logoutAdmin = (req, res) => {
+    res.clearCookie("adminToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+    });
+  
+    res.status(200).json({ message: "Logged out successfully" });
+  };
+  
   

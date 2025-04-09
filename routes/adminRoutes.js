@@ -12,7 +12,8 @@ import {
   updateSettings,
   inviteAdmin,
   registerAdmin,
-  loginAdmin // 👈 add this
+  loginAdmin,
+  logoutAdmin// 👈 add this
 } from '../controllers/adminController.js';
 
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
@@ -53,6 +54,7 @@ router.route('/profile').put(protect, adminOnly, updateProfile);
 router.get('/ping', (req, res) => {
   res.json({ message: 'Admin route is working' });
 });
+
 router.post('/login', loginAdmin);
 
 
@@ -63,3 +65,6 @@ router.post('/invite', protect, adminOnly, inviteAdmin);
 // Route used by invited user to register using the token
 router.post('/register-invite', registerAdmin);
 export default router;
+
+//logout
+router.post("/logout", logoutAdmin);
