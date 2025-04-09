@@ -1,3 +1,4 @@
+// backend/controllers/authController.js
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -162,7 +163,7 @@ export const forgotPassword = async (req, res) => {
       }
     });
 
-    const resetURL = `${process.env.BASE_URL}/api/auth/reset-password/${resetToken}`;
+    const resetURL = `${process.env.ADMIN_FRONTEND_URL}/reset-password/${resetToken}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -235,5 +236,5 @@ export const getMe = async (req, res) => {
   });
 };
 
-// backend/controllers/authController.js
+
 
