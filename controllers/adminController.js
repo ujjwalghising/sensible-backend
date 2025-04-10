@@ -253,4 +253,22 @@ export const registerAdmin = async (req, res) => {
     res.status(200).json({ message: "Logged out successfully" });
   };
   
+  export const getCurrentAdmin = async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+  
+      const user = await User.findById(req.user.id).select("-password");
+  
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+  
+      res.json(user);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to get current admin", error: err.message });
+    }
+  };
+  
   

@@ -12,11 +12,12 @@ import {
   updateSettings,
   inviteAdmin,
   registerAdmin,
+  getCurrentAdmin,
   loginAdmin,
   logoutAdmin// 👈 add this
 } from '../controllers/adminController.js';
 
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import { protect, adminOnly, authenticate } from '../middleware/authMiddleware.js';
 
 
 const router = express.Router();
@@ -68,3 +69,6 @@ export default router;
 
 //logout
 router.post("/logout", logoutAdmin);
+
+//GETSMIN
+router.get('/me', authenticate, getCurrentAdmin);
