@@ -19,10 +19,14 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // must exactly match frontend URL
-    credentials: true,               // must be true to send cookies
+    origin: [
+      "http://localhost:5173", 
+      "https://sensible-frontned.vercel.app"
+    ],
+    credentials: true,  // must be true to send cookies
   })
 );
+
 
 app.set('trust proxy', 1); // 💡 Required for Railway to handle cookies properly
 
