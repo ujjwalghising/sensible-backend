@@ -46,7 +46,7 @@ router.post('/add', async (req, res) => {
         name: product.name,
         description: product.description,
         price: product.price,
-        image: product.image,
+        image: product.images?.[0] || '/assets/no-image.jpg',
         category: product.category,
         quantity,
       });
