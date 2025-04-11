@@ -6,12 +6,12 @@ const router = express.Router();
 // ✅ Add a new product
 router.post("/add", async (req, res) => {
   try {
-    const { name, price, image, description, quantity, category } = req.body;
+    const { name, price, images, description, quantity, category } = req.body;
 
     const newProduct = new Product({
       name,
       price,
-      image,
+      images,
       description,
       quantity: quantity || 1,
       category,
