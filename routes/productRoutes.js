@@ -132,11 +132,25 @@ router.get("/:id", async (req, res) => {
 });
 
 // ✅ Update product by ID
+// ✅ Update product by ID
 router.put("/:id", async (req, res) => {
   try {
+    const { name, price, images, description, category, stock, quantity } = req.body;
+
+    // Prepare the updated product data
+    const updatedData = {
+      name,
+      price,
+      images,
+      description,
+      category,
+      stock: stock !== undefined ? stock : quantity || 1, // If stock is provided, use it, otherwise fallback to quantity or 1
+    };
+
+    // Update the product by ID
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updatedData,
       { new: true, runValidators: true }
     );
 
@@ -155,6 +169,7 @@ router.put("/:id", async (req, res) => {
     });
   }
 });
+
 
 // ✅ Delete product by ID
 router.delete("/:id", async (req, res) => {
@@ -216,5 +231,39 @@ router.post("/:id/review", protect, async (req, res) => {
     });
   }
 });
+// ✅ Update product stock by ID
+router.patch("/:id/update-stock", async (req, res) => {
+  try {
+    const { stock } = req.body; // The new stock value
+
+    if (stock === undefined) {
+      return res.status(400).json({ message: "Stock value is required" });
+    }
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Update the stock of the product
+    product.stock = stock;
+    await product.save();
+
+    res.status(200).json({
+      message: "Product stock updated successfully",
+      product: {
+        id: product._id,
+        stock: product.stock,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error updating product stock",
+      error: err.message,
+    });
+  }
+});
+
 
 export default router;
