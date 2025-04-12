@@ -52,6 +52,20 @@ console.log("EMAIL_USER:", process.env.EMAIL_USER);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.get('/api/products/sse/stock-updates', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  // Simulate product stock updates
+  setInterval(() => {
+    const stockUpdate = { productId: 1, stock: Math.floor(Math.random() * 100) };
+    res.write(`data: ${JSON.stringify(stockUpdate)}\n\n`);
+  }, 5000); // Send stock updates every 5 seconds
+});
+
+
 
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
