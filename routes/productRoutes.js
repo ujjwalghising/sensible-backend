@@ -1,6 +1,7 @@
 import express from "express";
 import Product from "../models/Product.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { stockUpdateEmitter, setupStockUpdateStream } from "../controllers/productSSE.js";
 
 const router = express.Router();
 
@@ -239,7 +240,12 @@ router.post("/:id/review", protect, async (req, res) => {
     });
   }
 });
-// ✅ Update product stock by ID
+
+
+// Stock update SSE endpoint
+router.get("/sse/stock-updates", setupStockUpdateStream);
+
+// Update product stock by ID and emit changes via SSE
 router.patch("/:id/update-stock", async (req, res) => {
   try {
     const { stock } = req.body; // The new stock value
@@ -257,6 +263,9 @@ router.patch("/:id/update-stock", async (req, res) => {
     // Update the stock of the product
     product.countInStock = stock;
     await product.save();
+
+    // Emit the updated product data to all connected clients
+    stockUpdateEmitter.emit("stockUpdated", product);
 
     res.status(200).json({
       message: "Product stock updated successfully",
