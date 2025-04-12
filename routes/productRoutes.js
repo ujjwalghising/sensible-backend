@@ -1,5 +1,6 @@
 import express from "express";
 import Product from "../models/Product.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -31,14 +32,26 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ Get all products or by category
+// ✅ Get all products or filtered by category, rating, stock
 router.get("/", async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, rating, inStock } = req.query;
 
-    let products = category 
-      ? await Product.find({ category }) 
-      : await Product.find();
+    const filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (rating) {
+      filter.rating = { $gte: Number(rating) }; // >= given rating
+    }
+
+    if (inStock === "true") {
+      filter.stock = { $gt: 0 }; // Only show products with stock > 0
+    }
+
+    const products = await Product.find(filter);
 
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });
@@ -52,6 +65,7 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
 
 // ✅ Get products by category (case-insensitive)
 router.get('/category/:categoryName', async (req, res) => {
@@ -163,5 +177,38 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+// ✅ Route to add a review
+router.post("/:id/review", protect, async (req, res) => {
+  const { rating, comment } = req.body;
+  const product = await Product.findById(req.params.id);
+
+  if (!product) return res.status(404).json({ message: "Product not found" });
+
+  const alreadyReviewed = product.reviews.find(
+    (r) => r.user.toString() === req.user._id.toString()
+  );
+
+  if (alreadyReviewed) {
+    return res.status(400).json({ message: "You already reviewed this product" });
+  }
+
+  const review = {
+    user: req.user._id,
+    name: req.user.name,
+    rating: Number(rating),
+    comment
+  };
+
+  product.reviews.push(review);
+  product.numReviews = product.reviews.length;
+  product.rating =
+    product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.numReviews;
+
+  await product.save();
+
+  res.status(201).json({ message: "Review added successfully" });
+});
+
+
 
 export default router;

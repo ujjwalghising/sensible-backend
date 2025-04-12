@@ -5,11 +5,26 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
-  images: { type: [String], required: true }, // ✅ renamed and changed to array
+  images: { type: [String], required: true },
   description: { type: String, required: true },
   quantity: { type: Number, default: 1 },
   category: { type: String, required: true },
+  stock: { type: Number, required: true, default: 0 },
+  rating: { type: Number, required: true, default: 0 },
+  numReviews: { type: Number, default: 0 },
+
+  // Add this block:
+  reviews: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      name: { type: String, required: true },
+      rating: { type: Number, required: true },
+      comment: { type: String },
+      createdAt: { type: Date, default: Date.now }
+    }
+  ]
 });
+
 
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
