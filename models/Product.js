@@ -22,11 +22,9 @@ const productSchema = new mongoose.Schema({
       comment: { type: String },
       createdAt: { type: Date, default: Date.now }
     }
-  ]
+  ],
+  averageRating: { type: Number, default: 0 },
 });
-
-
-
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
 export default Product;

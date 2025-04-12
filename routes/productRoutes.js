@@ -196,18 +196,23 @@ router.post("/:id/review", protect, async (req, res) => {
     user: req.user._id,
     name: req.user.name,
     rating: Number(rating),
-    comment
+    comment,
   };
 
   product.reviews.push(review);
   product.numReviews = product.reviews.length;
-  product.rating =
+  product.averageRating =
     product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.numReviews;
 
   await product.save();
 
-  res.status(201).json({ message: "Review added successfully" });
+  res.status(201).json({
+    message: "Review added successfully",
+    averageRating: product.averageRating,
+    numReviews: product.numReviews,
+  });
 });
+
 
 
 
