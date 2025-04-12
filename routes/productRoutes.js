@@ -45,8 +45,8 @@ router.get("/", async (req, res) => {
 
     if (rating) filter.rating = { $gte: Number(rating) };
 
-    if (inStock === "true") filter.countInStock = { $gt: 0 };
-    if (inStock === "false") filter.countInStock = { $lte: 0 };
+    if (inStock === "true") filter.countInStoc = { $gt: 0 };
+    if (inStock === "false") filter.countInStoc = { $lte: 0 };
 
     const products = await Product.find(filter);
 
