@@ -21,6 +21,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", 
+      "http://localhost:5174", 
       "https://sensible-frontned.vercel.app"
     ],
     credentials: true,  // must be true to send cookies
