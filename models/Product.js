@@ -25,6 +25,13 @@ const productSchema = new mongoose.Schema({
   ],
   averageRating: { type: Number, default: 0 },
 });
+productSchema.virtual("inStock").get(function () {
+  return this.stock > 0;
+});
+
+productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toObject", { virtuals: true });
+
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
 export default Product;
