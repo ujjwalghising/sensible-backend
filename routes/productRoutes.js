@@ -114,6 +114,7 @@ router.get("/search", async (req, res) => {
 });
 
 // ✅ Get product by ID
+// ✅ Get product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -122,7 +123,13 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json(product);
+    // Add the inStock virtual field to the response
+    const productWithStockStatus = {
+      ...product.toObject(),
+      inStock: product.inStock, // Add the virtual field in the response
+    };
+
+    res.status(200).json(productWithStockStatus);
   } catch (err) {
     res.status(500).json({
       message: "Error fetching product",
@@ -130,6 +137,7 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+
 
 // ✅ Update product by ID
 // ✅ Update product by ID
