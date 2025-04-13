@@ -28,7 +28,6 @@ app.use(
   })
 );
 
-
 app.set('trust proxy', 1); // 💡 Required for Railway to handle cookies properly
 
 app.use(cookieParser()); // ✅ Middleware for parsing cookies
@@ -48,24 +47,30 @@ console.log("JWT_SECRET:", process.env.JWT_SECRET ? "✅ Set" : "❌ Not Set");
 console.log("BASE_URL:", process.env.BASE_URL);
 console.log("EMAIL_USER:", process.env.EMAIL_USER);
 
-// ✅ Serve Frontend (if you want to deploy it together)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// ✅ Fix: Serve SSE endpoint before static serving!
 app.get('/api/products/sse/stock-updates', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  // Simulate product stock updates
-  setInterval(() => {
-    const stockUpdate = { productId: 1, stock: Math.floor(Math.random() * 100) };
+  const interval = setInterval(() => {
+    const stockUpdate = {
+      productId: 1,
+      stock: Math.floor(Math.random() * 100),
+    };
     res.write(`data: ${JSON.stringify(stockUpdate)}\n\n`);
-  }, 5000); // Send stock updates every 5 seconds
+  }, 5000);
+
+  req.on('close', () => {
+    clearInterval(interval);
+    res.end();
+  });
 });
 
-
+// ✅ Serve Frontend (after all API + SSE routes)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
