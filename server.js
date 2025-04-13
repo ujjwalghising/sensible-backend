@@ -49,25 +49,39 @@ console.log("BASE_URL:", process.env.BASE_URL);
 console.log("EMAIL_USER:", process.env.EMAIL_USER);
 
 // ✅ Fix: Serve SSE endpoint before static serving!
-app.get('/api/products/sse/stock-updates', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders();
+app.get("/api/products/stock-updates", async (req, res) => {
+  try {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
-  const interval = setInterval(() => {
-    const stockUpdate = {
-      productId: 1,
-      stock: Math.floor(Math.random() * 100),
+    res.flushHeaders();
+
+    console.log("🟢 Client connected to stock updates");
+
+    const sendInitial = () => {
+      res.write(`data: ${JSON.stringify({ message: "Connected to stock updates" })}\n\n`);
     };
-    res.write(`data: ${JSON.stringify(stockUpdate)}\n\n`);
-  }, 5000);
 
-  req.on('close', () => {
-    clearInterval(interval);
-    res.end();
-  });
+    sendInitial();
+
+    // Add listener to send updates later (or simulate it)
+    const interval = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: "stock", timestamp: Date.now() })}\n\n`);
+    }, 10000);
+
+    req.on("close", () => {
+      console.log("🔴 Client disconnected from stock updates");
+      clearInterval(interval);
+      res.end();
+    });
+
+  } catch (error) {
+    console.error("❌ Error in SSE endpoint:", error);
+    res.status(500).end("SSE Error");
+  }
 });
+
 
 // ✅ Serve Frontend (after all API + SSE routes)
 const __filename = fileURLToPath(import.meta.url);
