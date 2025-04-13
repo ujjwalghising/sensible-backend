@@ -5,10 +5,6 @@ import { protect } from '../middleware/authMiddleware.js';
 import { register, login, verifyEmail, forgotPassword, resetPassword } from '../controllers/authController.js';
 
 const router = express.Router();
-if (req.path === '/api/products/stock-updates') {
-    return next(); // Skip auth for SSE if public, or handle cookies manually here
-  }
-  
 router.get('/me', protect, getMe);
 router.post('/register', register);
 router.post('/login', login);
