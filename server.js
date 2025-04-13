@@ -22,7 +22,7 @@ app.use(
     origin: [
       "http://localhost:5173", 
       "http://localhost:5174", 
-      "http://localhost:5175",
+      "https://sensible-admin.vercel.app",
       "https://sensible-frontned.vercel.app"
     ],
     credentials: true,  // must be true to send cookies
@@ -54,7 +54,7 @@ app.get("/api/products/stock-updates", async (req, res) => {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
-
+8
     res.flushHeaders();
 
     console.log("🟢 Client connected to stock updates");
