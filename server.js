@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js'; // Import admin routes
 import cookieParser from "cookie-parser";
+import newsletterRoutes from './routes/newsletterRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -40,6 +41,7 @@ app.use("/api/products", productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes); // Use admin routes
+app.use('/api/newsletter', newsletterRoutes);
 
 console.log("✅ Loaded ENV Variables:");
 console.log("PORT:", process.env.PORT);
