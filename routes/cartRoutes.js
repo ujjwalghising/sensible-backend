@@ -1,84 +1,130 @@
-// routes/cartRoutes.js
 import express from 'express';
 import mongoose from 'mongoose';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
-import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// ✅ Get user's cart
-router.get('/', protect, async (req, res) => {
+// ✅ Get all cart items
+router.get('/', async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id });
-    res.json(cart || { items: [] });
+    const cartItems = await Cart.find();
+    res.json({ items: cartItems }); // ✅ wrap in object
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching cart', error: error.message });
+    res.status(500).json({ message: 'Error fetching cart items', error: error.message });
   }
 });
 
-// ✅ Add to cart
-router.post('/add', protect, async (req, res) => {
-  const { productId, quantity } = req.body;
-  if (!productId || quantity < 1) return res.status(400).json({ message: 'Invalid input' });
 
-  const product = await Product.findById(productId);
-  if (!product) return res.status(404).json({ message: 'Product not found' });
+// ✅ Add item to cart
+router.post('/add', async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
 
-  let cart = await Cart.findOne({ user: req.user._id });
-  if (!cart) cart = new Cart({ user: req.user._id, items: [] });
+    if (!productId) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
 
-  const existingItem = cart.items.find(item => item.productId.toString() === productId);
+    if (quantity < 1) {
+      return res.status(400).json({ message: 'Quantity must be at least 1' });
+    }
 
-  if (existingItem) {
-    existingItem.quantity += quantity;
-  } else {
-    cart.items.push({
-      productId,
-      name: product.name,
-      price: product.price,
-      image: product.images?.[0],
-      category: product.category,
-      quantity,
-    });
+    // Fetch product details from DB
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Check if the item already exists in the cart
+    let cartItem = await Cart.findOne({ productId });
+
+    if (cartItem) {
+      cartItem.quantity += quantity; // Update quantity
+    } else {
+      // Add new item with complete product details
+      cartItem = new Cart({
+        productId,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.images?.[0] || '/assets/no-image.jpg',
+        category: product.category,
+        quantity,
+      });
+    }
+
+    await cartItem.save();
+    res.status(201).json({ message: 'Item added to cart', cartItem });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding item to cart', error: error.message });
   }
-
-  await cart.save();
-  res.status(201).json({ message: 'Item added to cart', cart });
 });
 
-// ✅ Update quantity
-router.put('/update/:productId', protect, async (req, res) => {
+// ✅ Update item quantity
+router.put('/update/:id', async (req, res) => {
   const { quantity } = req.body;
-  if (quantity < 1) return res.status(400).json({ message: 'Invalid quantity' });
 
-  const cart = await Cart.findOne({ user: req.user._id });
-  if (!cart) return res.status(404).json({ message: 'Cart not found' });
+  if (quantity < 1) {
+    return res.status(400).json({ message: 'Quantity must be at least 1' });
+  }
 
-  const item = cart.items.find(i => i.productId.toString() === req.params.productId);
-  if (!item) return res.status(404).json({ message: 'Item not found' });
+  try {
+    const item = await Cart.findByIdAndUpdate(
+      req.params.id,
+      { quantity },
+      { new: true }
+    );
 
-  item.quantity = quantity;
-  await cart.save();
+    if (!item) return res.status(404).json({ message: 'Item not found' });
 
-  res.json({ message: 'Quantity updated', cart });
+    res.json({ message: 'Item quantity updated', item });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating item quantity', error: error.message });
+  }
 });
 
-// ✅ Remove item
-router.delete('/:productId', protect, async (req, res) => {
-  const cart = await Cart.findOne({ user: req.user._id });
-  if (!cart) return res.status(404).json({ message: 'Cart not found' });
+// ✅ Remove item from cart
+router.delete('/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: 'Invalid ID format' });
+  }
 
-  cart.items = cart.items.filter(i => i.productId.toString() !== req.params.productId);
-  await cart.save();
+  try {
+    const item = await Cart.findById(req.params.id);
 
-  res.json({ message: 'Item removed', cart });
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    await Cart.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Item removed from cart' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+  }
 });
 
-// ✅ Clear cart
-router.delete('/clear', protect, async (req, res) => {
-  await Cart.findOneAndDelete({ user: req.user._id });
-  res.json({ message: 'Cart cleared' });
+// Clear entire cart
+router.delete('/clear', async (req, res) => {
+  try {
+    await Cart.deleteMany({}); // Remove all cart items
+    res.status(200).json({ message: 'Cart cleared successfully!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to clear cart', error });
+  }
+});
+// ✅ Checkout route
+router.post('/checkout', async (req, res) => {
+  try {
+    const cartItems = await Cart.find();
+    if (cartItems.length === 0) {
+      return res.status(400).json({ message: 'Cart is empty' });
+    }
+
+    // Example: Process order (you can add your logic)
+    await Cart.deleteMany(); // Clear the cart after checkout
+
+    res.status(200).json({ message: 'Checkout successful!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Checkout failed', error: error.message });
+  }
 });
 
 export default router;
