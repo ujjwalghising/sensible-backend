@@ -5,123 +5,124 @@ import Product from '../models/Product.js';
 
 const router = express.Router();
 
-// ✅ Get all cart items
+// Get all cart items
 router.get('/', async (req, res) => {
   try {
     const cartItems = await Cart.find();
-    res.json({ items: cartItems }); // ✅ wrap in object
+    res.json({ items: cartItems });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching cart items', error: error.message });
   }
 });
 
-
-// ✅ Add item to cart
+// Add item to cart
 router.post('/add', async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
-    if (!productId) {
-      return res.status(400).json({ message: 'Product ID is required' });
-    }
+    if (!productId) return res.status(400).json({ message: 'Product ID is required' });
+    if (quantity < 1) return res.status(400).json({ message: 'Quantity must be at least 1' });
 
-    if (quantity < 1) {
-      return res.status(400).json({ message: 'Quantity must be at least 1' });
-    }
-
-    // Fetch product details from DB
     const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (quantity > product.countInStock)
+      return res.status(400).json({ message: 'Not enough stock available' });
 
-    // Check if the item already exists in the cart
     let cartItem = await Cart.findOne({ productId });
 
     if (cartItem) {
-      cartItem.quantity += quantity; // Update quantity
+      const totalQty = cartItem.quantity + quantity;
+      if (totalQty > product.countInStock) {
+        return res.status(400).json({ message: 'Exceeds available stock' });
+      }
+      cartItem.quantity = totalQty;
     } else {
-      // Add new item with complete product details
       cartItem = new Cart({
         productId,
         name: product.name,
-        description: product.description,
         price: product.price,
+        quantity,
         image: product.images?.[0] || '/assets/no-image.jpg',
         category: product.category,
-        quantity,
+        description: product.description,
       });
     }
 
     await cartItem.save();
     res.status(201).json({ message: 'Item added to cart', cartItem });
   } catch (error) {
-    res.status(500).json({ message: 'Error adding item to cart', error: error.message });
+    res.status(500).json({ message: 'Error adding to cart', error: error.message });
   }
 });
 
-// ✅ Update item quantity
+// Update quantity
 router.put('/update/:id', async (req, res) => {
   const { quantity } = req.body;
 
-  if (quantity < 1) {
-    return res.status(400).json({ message: 'Quantity must be at least 1' });
-  }
-
-  try {
-    const item = await Cart.findByIdAndUpdate(
-      req.params.id,
-      { quantity },
-      { new: true }
-    );
-
-    if (!item) return res.status(404).json({ message: 'Item not found' });
-
-    res.json({ message: 'Item quantity updated', item });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating item quantity', error: error.message });
-  }
-});
-
-// ✅ Remove item from cart
-router.delete('/:id', async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: 'Invalid ID format' });
-  }
+  if (quantity < 1) return res.status(400).json({ message: 'Quantity must be at least 1' });
 
   try {
     const item = await Cart.findById(req.params.id);
-
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    await Cart.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Item removed from cart' });
+    const product = await Product.findById(item.productId);
+    if (quantity > product.countInStock)
+      return res.status(400).json({ message: 'Not enough stock' });
+
+    item.quantity = quantity;
+    await item.save();
+    res.json({ message: 'Item updated', item });
   } catch (error) {
-    res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+    res.status(500).json({ message: 'Error updating cart', error: error.message });
   }
 });
 
-// Clear entire cart
+// Delete item
+router.delete('/:id', async (req, res) => {
+  try {
+    const item = await Cart.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    res.json({ message: 'Item removed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error removing item', error: error.message });
+  }
+});
+
+// Clear cart
 router.delete('/clear', async (req, res) => {
   try {
-    await Cart.deleteMany({}); // Remove all cart items
-    res.status(200).json({ message: 'Cart cleared successfully!' });
+    await Cart.deleteMany();
+    res.json({ message: 'Cart cleared' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to clear cart', error });
   }
 });
-// ✅ Checkout route
+
+// Validate coupon
+router.post('/validate-coupon', (req, res) => {
+  const { code } = req.body;
+  if (code === 'SAVE20') {
+    return res.json({ valid: true, discount: 20 });
+  }
+  res.json({ valid: false, discount: 0 });
+});
+
+// Checkout
 router.post('/checkout', async (req, res) => {
   try {
     const cartItems = await Cart.find();
-    if (cartItems.length === 0) {
-      return res.status(400).json({ message: 'Cart is empty' });
+    if (!cartItems.length) return res.status(400).json({ message: 'Cart is empty' });
+
+    for (const item of cartItems) {
+      const product = await Product.findById(item.productId);
+      if (!product || item.quantity > product.countInStock) {
+        return res.status(400).json({ message: `Insufficient stock for ${item.name}` });
+      }
     }
 
-    // Example: Process order (you can add your logic)
-    await Cart.deleteMany(); // Clear the cart after checkout
-
-    res.status(200).json({ message: 'Checkout successful!' });
+    await Cart.deleteMany();
+    res.json({ message: 'Checkout successful!' });
   } catch (error) {
     res.status(500).json({ message: 'Checkout failed', error: error.message });
   }
