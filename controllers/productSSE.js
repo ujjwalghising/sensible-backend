@@ -10,7 +10,8 @@ const setupStockUpdateStream = (req, res) => {
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();  // Ensure headers are sent immediately
 
-  res.write("data: Connected to stock updates\n\n");
+  res.write(`data: ${JSON.stringify({ message: "Connected to stock updates" })}\n\n`);
+
 
   const stockUpdateHandler = (product) => {
     res.write(`data: ${JSON.stringify(product)}\n\n`);
