@@ -53,28 +53,32 @@ router.post('/add', protect, async (req, res) => {
 });
 
 // Update item quantity
-router.put('/update/:productId', protect, async (req, res) => {
+router.put('/update-item/:cartItemId', protect, async (req, res) => {
   const { quantity } = req.body;
-  const { productId } = req.params;
+  const { cartItemId } = req.params;
 
   try {
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
-    const item = cart.items.find(i => i.productId.toString() === productId);
-    if (!item) return res.status(404).json({ message: 'Item not found' });
+    const item = cart.items.id(cartItemId);
+    if (!item) return res.status(404).json({ message: 'Cart item not found' });
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(item.productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
     if (quantity > product.countInStock)
       return res.status(400).json({ message: 'Not enough stock' });
 
     item.quantity = quantity;
     await cart.save();
-    res.json({ message: 'Item quantity updated', cart });
+
+    res.json({ message: 'Cart item updated successfully', cart });
   } catch (err) {
     res.status(500).json({ message: 'Update failed', error: err.message });
   }
 });
+
 
 // Remove item from cart
 router.delete('/remove/:productId', protect, async (req, res) => {
