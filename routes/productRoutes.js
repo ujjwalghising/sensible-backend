@@ -15,10 +15,9 @@ router.post("/add", async (req, res) => {
       price,
       images,
       description,
-      quantity: quantity || 1,
+      quantity: quantity || 1, // default to 1 if not provided
       category,
-      stock: stock || quantity || 1,
-
+      countInStock: stock || quantity || 1, // stock will fall back to quantity if not provided
     });
 
     await newProduct.save();
@@ -46,8 +45,8 @@ router.get("/", async (req, res) => {
 
     if (rating) filter.rating = { $gte: Number(rating) };
 
-    if (inStock === "true") filter.countInStoc = { $gt: 0 };
-    if (inStock === "false") filter.countInStoc = { $lte: 0 };
+    if (inStock === "true") filter.countInStock = { $gt: 0 };
+    if (inStock === "false") filter.countInStock = { $lte: 0 };
 
     const products = await Product.find(filter);
 
@@ -115,7 +114,6 @@ router.get("/search", async (req, res) => {
 });
 
 // ✅ Get product by ID
-// ✅ Get product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -139,8 +137,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
-// ✅ Update product by ID
 // ✅ Update product by ID
 router.put("/:id", async (req, res) => {
   try {
@@ -153,7 +149,7 @@ router.put("/:id", async (req, res) => {
       images,
       description,
       category,
-      stock: stock !== undefined ? stock : quantity || 1, // If stock is provided, use it, otherwise fallback to quantity or 1
+      countInStock: stock !== undefined ? stock : quantity || 1, // Use countInStock for stock
     };
 
     // Update the product by ID
@@ -178,7 +174,6 @@ router.put("/:id", async (req, res) => {
     });
   }
 });
-
 
 // ✅ Delete product by ID
 router.delete("/:id", async (req, res) => {
@@ -241,7 +236,6 @@ router.post("/:id/review", protect, async (req, res) => {
   }
 });
 
-
 // Stock update SSE endpoint
 router.get("/sse/stock-updates", setupStockUpdateStream);
 
@@ -281,6 +275,5 @@ router.patch("/:id/update-stock", async (req, res) => {
     });
   }
 });
-
 
 export default router;
