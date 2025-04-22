@@ -1,14 +1,14 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Get all cart items
-router.get('/', async (req, res) => {
+// Get all cart items for current user
+router.get('/', protect, async (req, res) => {
   try {
-    const cartItems = await Cart.find();
+    const cartItems = await Cart.find({ user: req.user._id });
     res.json({ items: cartItems });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching cart items', error: error.message });
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 // Add item to cart
-router.post('/add', async (req, res) => {
+router.post('/add', protect, async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
@@ -28,7 +28,7 @@ router.post('/add', async (req, res) => {
     if (quantity > product.countInStock)
       return res.status(400).json({ message: 'Not enough stock available' });
 
-    let cartItem = await Cart.findOne({ productId });
+    let cartItem = await Cart.findOne({ user: req.user._id, productId });
 
     if (cartItem) {
       const totalQty = cartItem.quantity + quantity;
@@ -38,6 +38,7 @@ router.post('/add', async (req, res) => {
       cartItem.quantity = totalQty;
     } else {
       cartItem = new Cart({
+        user: req.user._id,
         productId,
         name: product.name,
         price: product.price,
@@ -56,13 +57,13 @@ router.post('/add', async (req, res) => {
 });
 
 // Update quantity
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', protect, async (req, res) => {
   const { quantity } = req.body;
 
   if (quantity < 1) return res.status(400).json({ message: 'Quantity must be at least 1' });
 
   try {
-    const item = await Cart.findById(req.params.id);
+    const item = await Cart.findOne({ _id: req.params.id, user: req.user._id });
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
     const product = await Product.findById(item.productId);
@@ -78,9 +79,9 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // Delete item
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
   try {
-    const item = await Cart.findByIdAndDelete(req.params.id);
+    const item = await Cart.findOneAndDelete({ _id: req.params.id, user: req.user._id });
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
     res.json({ message: 'Item removed' });
@@ -90,17 +91,17 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Clear cart
-router.delete('/clear', async (req, res) => {
+router.delete('/clear', protect, async (req, res) => {
   try {
-    await Cart.deleteMany();
+    await Cart.deleteMany({ user: req.user._id });
     res.json({ message: 'Cart cleared' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to clear cart', error });
+    res.status(500).json({ message: 'Failed to clear cart', error: error.message });
   }
 });
 
 // Validate coupon
-router.post('/validate-coupon', (req, res) => {
+router.post('/validate-coupon', protect, (req, res) => {
   const { code } = req.body;
   if (code === 'SAVE20') {
     return res.json({ valid: true, discount: 20 });
@@ -109,9 +110,9 @@ router.post('/validate-coupon', (req, res) => {
 });
 
 // Checkout
-router.post('/checkout', async (req, res) => {
+router.post('/checkout', protect, async (req, res) => {
   try {
-    const cartItems = await Cart.find();
+    const cartItems = await Cart.find({ user: req.user._id });
     if (!cartItems.length) return res.status(400).json({ message: 'Cart is empty' });
 
     for (const item of cartItems) {
@@ -121,7 +122,9 @@ router.post('/checkout', async (req, res) => {
       }
     }
 
-    await Cart.deleteMany();
+    // (Optional) Reduce product stock here if doing real order logic
+
+    await Cart.deleteMany({ user: req.user._id });
     res.json({ message: 'Checkout successful!' });
   } catch (error) {
     res.status(500).json({ message: 'Checkout failed', error: error.message });
