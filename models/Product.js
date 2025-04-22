@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   category: { type: String, required: true },
 
   // Rename this 👇
-  countInStock: { type: Number, required: true, default: 0 },
+  countInStock: { type: Number, required: true },
 
   rating: { type: Number, required: true, default: 0 },
   numReviews: { type: Number, default: 0 },

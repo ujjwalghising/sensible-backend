@@ -8,31 +8,36 @@ const router = express.Router();
 // ✅ Add a new product
 router.post("/add", async (req, res) => {
   try {
-    const { name, price, images, description, quantity, category, stock } = req.body;
+    const { name, price, images, description, quantity, category, countInStock } = req.body;
 
+    // Create a new product
     const newProduct = new Product({
       name,
       price,
       images,
       description,
-      quantity: quantity || 1, // default to 1 if not provided
+      quantity: quantity || 1, // Default to 1 if not provided
       category,
-      countInStock: stock || quantity || 1, // stock will fall back to quantity if not provided
+      countInStock: countInStock || quantity || 1, // Use countInStock if provided, fallback to quantity, or default to 1
     });
 
+    // Save the product to the database
     await newProduct.save();
 
+    // Respond with success
     res.status(201).json({
       message: "Product added successfully",
       product: newProduct,
     });
   } catch (err) {
+    // Handle errors
     res.status(500).json({
       message: "Error adding product",
       error: err.message,
     });
   }
 });
+
 
 // ✅ Get all products or filtered by category, rating, stock
 router.get("/", async (req, res) => {
@@ -140,7 +145,7 @@ router.get("/:id", async (req, res) => {
 // ✅ Update product by ID
 router.put("/:id", async (req, res) => {
   try {
-    const { name, price, images, description, category, stock, quantity } = req.body;
+    const { name, price, images, description, category, countInStock, quantity } = req.body;
 
     // Prepare the updated product data
     const updatedData = {
@@ -149,7 +154,7 @@ router.put("/:id", async (req, res) => {
       images,
       description,
       category,
-      countInStock: stock !== undefined ? stock : quantity || 1, // Use countInStock for stock
+      countInStock: countInStock !== undefined ? countInStock : quantity || 1, // Use countInStock for stock
     };
 
     // Update the product by ID
