@@ -8,21 +8,28 @@ const cartItemSchema = new mongoose.Schema({
   },
   name: String,
   price: Number,
-  quantity: { type: Number, required: true, min: 1 },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
   image: String,
   category: String,
   description: String,
 });
 
-const cartSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true, // One cart per user
+const cartSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true, // Ensures one cart per user
+    },
+    items: [cartItemSchema],
   },
-  items: [cartItemSchema],
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const Cart = mongoose.model('Cart', cartSchema);
 
